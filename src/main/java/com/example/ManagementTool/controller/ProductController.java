@@ -41,7 +41,7 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDto> updateProduct(
             @PathVariable Integer id,
-            @RequestBody UpdateProductRequest updateRequest) {
+            @Valid @RequestBody UpdateProductRequest updateRequest) {
         return ResponseEntity.ok(productService.updateProduct(id, updateRequest));
     }
 
