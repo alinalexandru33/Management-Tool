@@ -1,6 +1,12 @@
 # Management-Tool
 ING Hubs assessment
 
+## How to run
+```bash
+mvn clean install
+mvn spring-boot:run
+```
+Application will start on port 8080.
 
 ## Features
 - CRUD operations: add, search, list, update price/quantity
@@ -33,18 +39,10 @@ curl -u user:user http://localhost:8080/api/products
 curl -u admin:admin http://localhost:8080/api/products/Milk
 ```
 
-- Change product price:
+- Change product price & quantity:
 
 ```bash  
-curl -u admin:admin -X PUT http://localhost:8080/api/products/1/price \
+curl -u admin:admin -X PATCH http://localhost:8080/api/products/1 \
   -H "Content-Type: application/json" \
-  -d '6.99'
-```
-
-- Change product quantity:
-
-```bash
-curl -u admin:admin -X PUT http://localhost:8080/api/products/1/quantity \
-  -H "Content-Type: application/json" \
-  -d '30'
+  -d '{"price":11.99, "quantity":70}'
 ```
