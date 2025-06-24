@@ -2,6 +2,7 @@ package com.example.ManagementTool.controller;
 
 import com.example.ManagementTool.dto.CreateProductRequest;
 import com.example.ManagementTool.dto.ProductDto;
+import com.example.ManagementTool.dto.UpdateProductRequest;
 import com.example.ManagementTool.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,15 +37,12 @@ public class ProductController {
         return productService.findAll();
     }
 
-    @PutMapping("/{id}/price")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductDto> changePrice(@PathVariable Integer id, @RequestBody Double price) {
-        return ResponseEntity.ok(productService.changePrice(id, price));
+    public ResponseEntity<ProductDto> updateProduct(
+            @PathVariable Integer id,
+            @RequestBody UpdateProductRequest updateRequest) {
+        return ResponseEntity.ok(productService.updateProduct(id, updateRequest));
     }
 
-    @PutMapping("/{id}/quantity")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductDto> changeQuantity(@PathVariable Integer id, @RequestBody Integer quantity) {
-        return ResponseEntity.ok(productService.changeQuantity(id, quantity));
-    }
 }

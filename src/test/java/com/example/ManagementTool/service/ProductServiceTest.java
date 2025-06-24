@@ -2,6 +2,7 @@ package com.example.ManagementTool.service;
 
 import com.example.ManagementTool.dto.CreateProductRequest;
 import com.example.ManagementTool.dto.ProductDto;
+import com.example.ManagementTool.dto.UpdateProductRequest;
 import com.example.ManagementTool.exception.ResourceAlreadyExistsException;
 import com.example.ManagementTool.exception.ResourceNotFoundException;
 import com.example.ManagementTool.mapper.ProductMapper;
@@ -101,46 +102,66 @@ public class ProductServiceTest {
     }
 
     @Test
-    void changePriceSuccessTest() {
+    void updateProductChangePriceTest() {
         Product existing = Product.builder().id(5).name("Milk").price(7.0).quantity(10).build();
         Product saved = Product.builder().id(5).name("Milk").price(8.0).quantity(10).build();
         ProductDto dto = new ProductDto(5, "Milk", 8.0, 10);
+
+        UpdateProductRequest updateReq = new UpdateProductRequest(8.0, null);
 
         when(productRepository.findById(5)).thenReturn(Optional.of(existing));
         when(productRepository.save(existing)).thenReturn(saved);
         when(productMapper.toDto(saved)).thenReturn(dto);
 
-        ProductDto result = productService.changePrice(5, 8.0);
+        ProductDto result = productService.updateProduct(5, updateReq);
 
         assertEquals(dto, result);
         assertEquals(8.0, existing.getPrice());
+        assertEquals(10, existing.getQuantity());
     }
 
     @Test
-    void changePriceNotFoundTest() {
-        when(productRepository.findById(123)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> productService.changePrice(123, 11.0));
-    }
-
-    @Test
-    void changeQuantitySuccessTest() {
+    void updateProductChangeQuantityTest() {
         Product existing = Product.builder().id(3).name("Milk").price(5.0).quantity(1).build();
         Product saved = Product.builder().id(3).name("Milk").price(5.0).quantity(33).build();
         ProductDto dto = new ProductDto(3, "Milk", 5.0, 33);
+
+        UpdateProductRequest updateReq = new UpdateProductRequest(null, 33);
 
         when(productRepository.findById(3)).thenReturn(Optional.of(existing));
         when(productRepository.save(existing)).thenReturn(saved);
         when(productMapper.toDto(saved)).thenReturn(dto);
 
-        ProductDto result = productService.changeQuantity(3, 33);
+        ProductDto result = productService.updateProduct(3, updateReq);
 
         assertEquals(dto, result);
+        assertEquals(5.0, existing.getPrice());
         assertEquals(33, existing.getQuantity());
     }
 
     @Test
-    void changeQuantityNotFoundTest() {
-        when(productRepository.findById(123)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> productService.changePrice(123, 11.0));
+    void updateProductChangeBothTest() {
+        Product existing = Product.builder().id(7).name("Milk").price(1.5).quantity(9).build();
+        Product saved = Product.builder().id(7).name("Milk").price(2.0).quantity(10).build();
+        ProductDto dto = new ProductDto(7, "Milk", 2.0, 10);
+
+        UpdateProductRequest updateReq = new UpdateProductRequest(2.0, 10);
+
+        when(productRepository.findById(7)).thenReturn(Optional.of(existing));
+        when(productRepository.save(existing)).thenReturn(saved);
+        when(productMapper.toDto(saved)).thenReturn(dto);
+
+        ProductDto result = productService.updateProduct(7, updateReq);
+
+        assertEquals(dto, result);
+        assertEquals(2.0, existing.getPrice());
+        assertEquals(10, existing.getQuantity());
+    }
+
+    @Test
+    void updateProductNotFoundTest() {
+        UpdateProductRequest updateReq = new UpdateProductRequest(12.0, 3);
+        when(productRepository.findById(100)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> productService.updateProduct(100, updateReq));
     }
 }
