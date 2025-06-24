@@ -1,42 +1,57 @@
 package com.example.ManagementTool.service;
 
-import com.example.ManagementTool.model.Product;
+import com.example.ManagementTool.dto.CreateProductRequest;
+import com.example.ManagementTool.dto.ProductDto;
+import com.example.ManagementTool.mapper.ProductMapper;
 import com.example.ManagementTool.repository.ProductRepository;
-import lombok.AllArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public Product addProduct(Product product) {
-        return productRepository.save(product);
+    @Transactional
+    public ProductDto addProduct(CreateProductRequest request) {
+        if(productRepository.findByName(request.name()).isPresent()) {
+            throw new IllegalArgumentException("Product with this name exists!");
+        }
+
+        var product = productMapper.toEntity(request);
+        return productMapper.toDto(productRepository.save(product));
     }
 
-    public Optional<Product> findByName(String name) {
-        return productRepository.findByName(name);
+    public ProductDto findByName(String name) {
+        return productRepository.findByName(name)
+                .map(productMapper::toDto)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
     }
 
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public List<ProductDto> findAll() {
+        return productRepository.findAll().stream()
+                .map(productMapper::toDto)
+                .toList();
     }
 
-    public Product changePrice(Integer id, double newPrice) {
-        Product product = productRepository.findById(id)
+    @Transactional
+    public ProductDto changePrice(Integer id, double newPrice) {
+        var product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
         product.setPrice(newPrice);
-        return productRepository.save(product);
+        return productMapper.toDto(productRepository.save(product));
     }
 
-    public Product changeQuantity(Integer id, int newQuantity) {
-        Product product = productRepository.findById(id)
+    @Transactional
+    public ProductDto changeQuantity(Integer id, int newQuantity) {
+        var product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
         product.setQuantity(newQuantity);
-        return productRepository.save(product);
+        return productMapper.toDto(productRepository.save(product));
     }
 }
